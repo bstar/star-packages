@@ -1,0 +1,28 @@
+# Maintainer: bstar <https://github.com/bstar>
+#
+# Repackages the pacman package attached to each STAR/AMP release, so this
+# recipe builds nothing. The source-built recipe ships as PKGBUILD with every
+# release, and the signed [star] repository carries the same package.
+pkgname=staramp-bin
+_pkgname=staramp
+pkgver=0.1.2
+pkgrel=1
+pkgdesc='A terminal music player in the STAR family'
+arch=('x86_64')
+url='https://github.com/bstar/staramp'
+license=('MIT' 'LGPL-2.1-or-later')
+depends=('glibc' 'gcc-libs' 'ffmpeg' 'alsa-lib')
+optdepends=('vulkan-icd-loader: GPU rendering for the graphical visualizer'
+            'pipewire-alsa: play through PipeWire')
+provides=("$_pkgname=$pkgver")
+conflicts=("$_pkgname")
+options=('!strip' '!debug')
+noextract=("$_pkgname-$pkgver-1-x86_64.pkg.tar.zst")
+source=("$url/releases/download/v$pkgver/$_pkgname-$pkgver-1-x86_64.pkg.tar.zst")
+sha256sums=('0be395fd3769fea9c665c83281e727e28359d5e159c8f3a86602e36a55a76235')
+
+package() {
+    bsdtar -xf "$srcdir/$_pkgname-$pkgver-1-x86_64.pkg.tar.zst" -C "$pkgdir" \
+        --exclude '.PKGINFO' --exclude '.BUILDINFO' --exclude '.MTREE' \
+        --exclude '.INSTALL'
+}
