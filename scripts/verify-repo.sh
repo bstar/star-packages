@@ -19,5 +19,8 @@ for app in "${apps[@]}"; do
   "$app" --version
   test -f "/usr/share/applications/$app.desktop"
   pacman -Rns --noconfirm "$app"
-  if command -v "$app" >/dev/null; then echo "$app still installed" >&2; exit 1; fi
+  if pacman -Q "$app" >/dev/null 2>&1 || [[ -e /usr/bin/$app ]]; then
+    echo "$app is still installed" >&2
+    exit 1
+  fi
 done
