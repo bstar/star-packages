@@ -1,0 +1,19 @@
+name: aur
+on:
+  push:
+    branches: [main]
+    paths: ['aur/**', 'scripts/verify-aur.sh', '.github/workflows/aur.yml']
+  pull_request:
+    paths: ['aur/**', 'scripts/verify-aur.sh', '.github/workflows/aur.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: scripts/verify-aur.sh

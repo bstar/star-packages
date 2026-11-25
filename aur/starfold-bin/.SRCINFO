@@ -1,0 +1,21 @@
+pkgbase = starfold-bin
+	pkgdesc = A stack-based terminal file manager in the STAR family
+	pkgver = 0.0.2
+	pkgrel = 1
+	url = https://github.com/bstar/starfold
+	arch = x86_64
+	license = MIT
+	license = LicenseRef-UnRAR
+	depends = glibc
+	depends = gcc-libs
+	optdepends = xdg-utils: open files with desktop applications
+	optdepends = libvips: thumbnail very large images
+	provides = starfold=0.0.2
+	conflicts = starfold
+	noextract = starfold-0.0.2-1-x86_64.pkg.tar.zst
+	options = !strip
+	options = !debug
+	source = https://github.com/bstar/starfold/releases/download/v0.0.2/starfold-0.0.2-1-x86_64.pkg.tar.zst
+	sha256sums = 796f47454496b13cf299565df6ead1a9d9c8710d56275d402f51dfcdfe14a95c
+
+pkgname = starfold-bin

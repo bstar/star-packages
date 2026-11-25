@@ -1,0 +1,23 @@
+pkgbase = staramp-bin
+	pkgdesc = A terminal music player in the STAR family
+	pkgver = 0.1.2
+	pkgrel = 1
+	url = https://github.com/bstar/staramp
+	arch = x86_64
+	license = MIT
+	license = LGPL-2.1-or-later
+	depends = glibc
+	depends = gcc-libs
+	depends = ffmpeg
+	depends = alsa-lib
+	optdepends = vulkan-icd-loader: GPU rendering for the graphical visualizer
+	optdepends = pipewire-alsa: play through PipeWire
+	provides = staramp=0.1.2
+	conflicts = staramp
+	noextract = staramp-0.1.2-1-x86_64.pkg.tar.zst
+	options = !strip
+	options = !debug
+	source = https://github.com/bstar/staramp/releases/download/v0.1.2/staramp-0.1.2-1-x86_64.pkg.tar.zst
+	sha256sums = 0be395fd3769fea9c665c83281e727e28359d5e159c8f3a86602e36a55a76235
+
+pkgname = staramp-bin
