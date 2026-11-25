@@ -4,6 +4,9 @@
 # archlinux:latest.
 set -euo pipefail
 
+# The archlinux image ships without a local master key, which every installed
+# system has and pacman-key --lsign-key needs.
+pacman-key --init
 STAR_SETUP_YES=1 bash ./setup-star-repo.sh
 pacman -Syu --noconfirm
 
