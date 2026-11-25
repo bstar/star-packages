@@ -1,0 +1,31 @@
+# Maintainer: bstar <https://github.com/bstar>
+#
+# Repackages the pacman package attached to each STAR/FLUX release, so this
+# recipe builds nothing. The source-built recipe ships as PKGBUILD with every
+# release, and the signed [star] repository carries the same package.
+pkgname=starflux-bin
+_pkgname=starflux
+pkgver=0.2.0
+pkgrel=1
+pkgdesc='Native Kitty terminals, agents and persistent local/SSH app desktops'
+arch=('x86_64')
+url='https://github.com/bstar/starflux'
+license=('MIT')
+depends=('glibc' 'gcc-libs' 'ffmpeg' 'alsa-lib' 'alsa-plugins' 'gstreamer'
+         'gst-plugins-base' 'gst-plugins-good' 'gst-plugins-bad'
+         'gst-plugins-ugly' 'gst-libav' 'glib2' 'wayland' 'libxkbcommon'
+         'libdrm' 'mesa' 'libglvnd' 'libpulse' 'tmux' 'python' 'openssh'
+         'xorg-xwayland' 'dbus' 'kitty')
+optdepends=('libnotify: local desktop notification delivery')
+provides=("$_pkgname=$pkgver")
+conflicts=("$_pkgname")
+options=('!strip' '!debug')
+noextract=("$_pkgname-$pkgver-1-x86_64.pkg.tar.zst")
+source=("$url/releases/download/v$pkgver/$_pkgname-$pkgver-1-x86_64.pkg.tar.zst")
+sha256sums=('d7442b220cdc7ac14cbbbeaa4e813af009b8fe72c6b306bb6322c18899de0e45')
+
+package() {
+    bsdtar -xf "$srcdir/$_pkgname-$pkgver-1-x86_64.pkg.tar.zst" -C "$pkgdir" \
+        --exclude '.PKGINFO' --exclude '.BUILDINFO' --exclude '.MTREE' \
+        --exclude '.INSTALL'
+}

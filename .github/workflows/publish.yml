@@ -1,0 +1,76 @@
+name: publish
+on:
+  # Daily, so a new app release reaches [star] without the app repositories
+  # holding a token for this one. A run that finds nothing new deploys nothing.
+  schedule:
+    - cron: '23 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container: archlinux:latest
+    outputs:
+      changed: ${{ steps.compare.outputs.changed }}
+      list: ${{ steps.compare.outputs.list }}
+    steps:
+      - name: Tools
+        run: pacman -Syu --noconfirm --needed github-cli gnupg git
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Fetch, verify and sign the released packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAR_SIGNING_KEY: ${{ secrets.STAR_SIGNING_KEY }}
+        run: scripts/build-repo.sh
+      - name: Compare with what is live
+        id: compare
+        run: |
+          live=$(curl -fsSL https://bstar.github.io/star-packages/packages.txt || true)
+          if [ "$live" = "$(cat public/packages.txt)" ] && [ "${{ github.event_name }}" = schedule ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "Nothing new since the live repository."
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+          fi
+          echo "list=$(sha256sum <public/packages.txt | cut -c1-64)" >>"$GITHUB_OUTPUT"
+          cat public/packages.txt
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        if: steps.compare.outputs.changed == 'true'
+        with:
+          path: public
+  deploy:
+    needs: build
+    if: needs.build.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
+  # Install from the live repository in a fresh container, the way a user would.
+  verify:
+    needs: [build, deploy]
+    runs-on: ubuntu-24.04
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Wait for Pages to serve this run's packages
+        env:
+          WANT: ${{ needs.build.outputs.list }}
+        run: |
+          for i in $(seq 1 60); do
+            got=$(curl -fsSL "https://bstar.github.io/star-packages/packages.txt?run=$GITHUB_RUN_ID-$i" | sha256sum | cut -c1-64)
+            [ "$got" = "$WANT" ] && exit 0
+            sleep 10
+          done
+          echo "Pages never served this run's package list" >&2
+          exit 1
+      - run: scripts/verify-repo.sh
