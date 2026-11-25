@@ -8,6 +8,7 @@ pacman -Syu --noconfirm --needed base-devel
 id builder >/dev/null 2>&1 || useradd -m builder
 
 work=$(mktemp -d)
+chmod 755 "$work"  # mktemp makes it root-only; the builder must enter it
 for recipe in aur/*/; do
   name=$(basename "$recipe")
   app=${name%-bin}
